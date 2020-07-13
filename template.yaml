@@ -3,9 +3,12 @@ Description:
   無料の範囲内でEC2インスタンスを構築するためのテンプレートです。そのため、コンピューティング性能（AMI,インスタンスタイプ）は最少スペックで構成。
   なお、サーバー種別はWebサーバーを想定しています。
 
+# ------------------------------------------------------------#
+# Input Console
+# ------------------------------------------------------------#
 Metadata:
   AWS::CloudFormation::Interface:
-    # 各種パラメータ（コンソール画面からの入力用）
+    # パラメータグループ
     ParameterGroups:
       - Label:
           default: Name Prefix
@@ -13,19 +16,21 @@ Metadata:
           - CompanyPrefix
           - PJPrefix
       - Label:
+          default: Environment
+        Parameters:
+          - Environment
+      - Label:
           default: EC2Instance Configuration
         Parameters:
-          - KeyPairName
           - EC2InstanceName
           - EC2InstanceAMI
           - EC2InstanceInstanceType
           - EC2InstanceVolumeType
           - EC2InstanceVolumeSize
+          - EC2InstanceKeyPairName
           - SSHAccessSourceIP
-    # 各種パラメータのエイリアス
+    # パラメータラベル
     ParameterLabels:
-      KeyPairName:
-        default: KeyPairName
       EC2InstanceName:
         default: EC2 Name
       EC2InstanceAMI:
@@ -36,6 +41,8 @@ Metadata:
         default: EC2 VolumeType
       EC2InstanceVolumeSize:
         default: EC2 VolumeSize
+      EC2InstanceKeyPairName:
+        default: EC2 KeyPairName
       SSHAccessSourceIP:
         default: SSH AccessSourceIP
 
@@ -47,29 +54,30 @@ Parameters:
     Type: String
   PJPrefix:
     Type: String
-  
+  Environment:
+    Type: String
+    AllowedValues:
+      - prd
+      - stg
+      - demo
+
   # EC2Instance
-  KeyPairName:
-    Type: AWS::EC2::KeyPair::KeyName
-    Default: "key"
   EC2InstanceName:
     Type: String
-    Default: web
   EC2InstanceAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   EC2InstanceInstanceType:
     Type: String
-    Default: t2.micro
   EC2InstanceVolumeType:
     Type: String
-    Default: gp2
   EC2InstanceVolumeSize:
     Type: String
-    Default: 8
+  EC2InstanceKeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+
+  # SecurityGroup
   SSHAccessSourceIP:
     Type: String
-    Default: 0.0.0.0/0
 
 Resources:
 # ------------------------------------------------------------#
@@ -77,8 +85,8 @@ Resources:
 # ------------------------------------------------------------#
   EC2IAMRole: 
     Type: AWS::IAM::Role
-    Properties: 
-      RoleName: !Sub ${PJPrefix}-${EC2InstanceName}-IAMRole
+    Properties:
+      RoleName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-IAMRole
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -93,25 +101,24 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         - arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
   
-  EC2InstanceProfile: 
+  EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties: 
       Path: /
       Roles: 
         - Ref: EC2IAMRole
-      InstanceProfileName: !Sub ${PJPrefix}-${EC2InstanceName}-InstanceProfile
+      InstanceProfileName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-InstanceProfile
 
 # ------------------------------------------------------------#
-#  EC2Instance AZ:A
+#  EC2Instance AZ:A #1
 # ------------------------------------------------------------#
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       #DependsOn: ManagedSecurityGroup
-      #DeletionPolicy: Delete
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-${EC2InstanceName}-01
+          Value: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-01
 
       # コンピューティング性能
       #
@@ -121,7 +128,7 @@ Resources:
       InstanceType: !Ref EC2InstanceInstanceType
 
       # キーペアの名前
-      KeyName: !Ref KeyPairName
+      KeyName: !Ref EC2InstanceKeyPairName
       # インスタンスを起動するサブネット
       SubnetId: { "Fn::ImportValue": !Sub "${CompanyPrefix}-private-subnet-a" }
       #
@@ -170,12 +177,12 @@ Resources:
 # ------------------------------------------------------------#
   ManagedSecurityGroup:
     Type: AWS::EC2::SecurityGroup
-    Properties: 
+    Properties:
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-managed-sg
+          Value: !Sub ${PJPrefix}-${Environment}-managed-sg
       VpcId: { "Fn::ImportValue": !Sub "${CompanyPrefix}-vpc" }
-      GroupName: !Sub ${PJPrefix}-managed-sg
+      GroupName: !Sub ${PJPrefix}-${Environment}-managed-sg
       GroupDescription: "-"
 
       # Rule
@@ -196,9 +203,9 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-web-sg
+          Value: !Sub ${PJPrefix}-${Environment}-web-sg
       VpcId: { "Fn::ImportValue": !Sub "${CompanyPrefix}-vpc" }
-      GroupName: !Sub ${PJPrefix}-web-sg
+      GroupName: !Sub ${PJPrefix}-${Environment}-web-sg
       GroupDescription: "-"
 
   # Rule
@@ -215,18 +222,28 @@ Resources:
 # コンソール出力情報
 # ------------------------------------------------------------#
 Outputs:
+  EC2IAMRole:
+    Description: "-"
+    Value: !Ref EC2IAMRole
+    Export:
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-IAMRole
+  EC2InstanceProfile:
+    Description: "-"
+    Value: !Ref EC2InstanceProfile
+    Export:
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-InstanceProfile
   EC2Instance:
     Description: "-"
     Value: !Ref EC2Instance
     Export:
-      Name: !Sub ${PJPrefix}-${EC2InstanceName}-01
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-01
   ManagedSecurityGroup:
     Description: "-"
     Value: !Ref ManagedSecurityGroup
     Export:
-      Name: !Sub ${PJPrefix}-managed-sg
+      Name: !Sub ${PJPrefix}-${Environment}-managed-sg
   WebSecurityGroup:
     Description: "-"
     Value: !Ref WebSecurityGroup
     Export:
-      Name: !Sub ${PJPrefix}-web-sg
+      Name: !Sub ${PJPrefix}-${Environment}-web-sg

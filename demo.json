@@ -1,0 +1,47 @@
+{
+    "StackName": "tutorial-demo-ec2-web-server-template",
+    "TemplateBody": "file://template.yaml",
+    "Parameters": [{
+        "ParameterKey": "CompanyPrefix",
+        "ParameterValue": "ar"
+    },
+    {
+        "ParameterKey": "PJPrefix",
+        "ParameterValue": "tutorial"
+    },
+    {
+        "ParameterKey": "Environment",
+        "ParameterValue": "demo"
+    },
+    {
+        "ParameterKey": "EC2InstanceName",
+        "ParameterValue": "web"
+    },
+    {
+        "ParameterKey": "EC2InstanceAMI",
+        "ParameterValue": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+    },
+    {
+        "ParameterKey": "EC2InstanceInstanceType",
+        "ParameterValue": "t2.micro"
+    },
+    {
+        "ParameterKey": "EC2InstanceVolumeType",
+        "ParameterValue": "gp2"
+    },
+    {
+        "ParameterKey": "EC2InstanceVolumeSize",
+        "ParameterValue": "8"
+    },
+    {
+        "ParameterKey": "EC2InstanceKeyPairName",
+        "ParameterValue": "key"
+    },
+    {
+        "ParameterKey": "SSHAccessSourceIP",
+        "ParameterValue": "0.0.0.0/0"
+    }],
+    "Capabilities": [
+        "CAPABILITY_NAMED_IAM"
+    ]
+}
