@@ -1,6 +1,5 @@
 {
     "StackName": "tutorial-demo-ec2-web-server-template",
-    "TemplateBody": "file://template.yaml",
     "Parameters": [{
         "ParameterKey": "CompanyPrefix",
         "ParameterValue": "ar"
@@ -14,7 +13,7 @@
         "ParameterValue": "demo"
     },
     {
-        "ParameterKey": "EC2InstanceName",
+        "ParameterKey": "EC2InstanceServiceName",
         "ParameterValue": "web"
     },
     {

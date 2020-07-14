@@ -22,7 +22,7 @@ Metadata:
       - Label:
           default: EC2Instance Configuration
         Parameters:
-          - EC2InstanceName
+          - EC2InstanceServiceName
           - EC2InstanceAMI
           - EC2InstanceInstanceType
           - EC2InstanceVolumeType
@@ -31,7 +31,7 @@ Metadata:
           - SSHAccessSourceIP
     # パラメータラベル
     ParameterLabels:
-      EC2InstanceName:
+      EC2InstanceServiceName:
         default: EC2 Name
       EC2InstanceAMI:
         default: EC2 AMI
@@ -62,7 +62,7 @@ Parameters:
       - demo
 
   # EC2Instance
-  EC2InstanceName:
+  EC2InstanceServiceName:
     Type: String
   EC2InstanceAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -86,7 +86,7 @@ Resources:
   EC2IAMRole: 
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-IAMRole
+      RoleName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-IAMRole
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
         Statement: 
@@ -107,7 +107,7 @@ Resources:
       Path: /
       Roles: 
         - Ref: EC2IAMRole
-      InstanceProfileName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-InstanceProfile
+      InstanceProfileName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-InstanceProfile
 
 # ------------------------------------------------------------#
 #  EC2Instance AZ:A #1
@@ -118,7 +118,7 @@ Resources:
       #DependsOn: ManagedSecurityGroup
       Tags:
         - Key: Name
-          Value: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-01
+          Value: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-01
 
       # コンピューティング性能
       #
@@ -226,17 +226,17 @@ Outputs:
     Description: "-"
     Value: !Ref EC2IAMRole
     Export:
-      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-IAMRole
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-IAMRole
   EC2InstanceProfile:
     Description: "-"
     Value: !Ref EC2InstanceProfile
     Export:
-      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-InstanceProfile
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-InstanceProfile
   EC2Instance:
     Description: "-"
     Value: !Ref EC2Instance
     Export:
-      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceName}-01
+      Name: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-01
   ManagedSecurityGroup:
     Description: "-"
     Value: !Ref ManagedSecurityGroup
