@@ -88,7 +88,7 @@ Resources:
     Properties:
       RoleName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-IAMRole
       AssumeRolePolicyDocument: 
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement: 
           - Effect: Allow
             Principal: 
@@ -100,14 +100,15 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
         - arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonSSMManagedInstanceCore
   
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties: 
+      InstanceProfileName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-InstanceProfile
       Path: /
       Roles: 
-        - Ref: EC2IAMRole
-      InstanceProfileName: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-InstanceProfile
+        - !Ref EC2IAMRole
 
 # ------------------------------------------------------------#
 #  EC2Instance AZ:A #1
