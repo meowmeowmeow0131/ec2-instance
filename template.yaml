@@ -98,8 +98,8 @@ Resources:
               - sts:AssumeRole
       Path: /
       ManagedPolicyArns: 
-        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
-        - arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+        #- arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+        #- arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
   
   EC2InstanceProfile:
