@@ -59,7 +59,7 @@ Parameters:
     AllowedValues:
       - prd
       - stg
-      - demo
+      - poc
 
   # EC2Instance
   EC2InstanceServiceName:
@@ -74,6 +74,8 @@ Parameters:
     Type: String
   EC2InstanceKeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
+  EC2InstancePrivateIpAddr:
+    Type: String
 
   # SecurityGroup
   SSHAccessSourceIP:
@@ -167,7 +169,7 @@ Resources:
       GroupSet: 
         - !Ref ManagedSecurityGroup
         - !Ref WebSecurityGroup
-      #PrivateIpAddress: String
+      PrivateIpAddress: EC2InstancePrivateIpAddr
       SourceDestCheck: true
       SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-private-subnet-a"}
 
@@ -246,10 +248,10 @@ Resources:
           ToPort: 443
           CidrIp: 0.0.0.0/0
 
-# ------------------------------------------------------------#
-# コンソール出力情報
-# ------------------------------------------------------------#
 Outputs:
+# ------------------------------------------------------------#
+# Arn Infomation
+# ------------------------------------------------------------#
   EC2IAMRole:
     Description: "-"
     Value: !Ref EC2IAMRole

@@ -37,6 +37,10 @@
         "ParameterValue": "key"
     },
     {
+        "ParameterKey": "EC2InstancePrivateIpAddr",
+        "ParameterValue": "10.2.10.3"
+    },
+    {
         "ParameterKey": "SSHAccessSourceIP",
         "ParameterValue": "0.0.0.0/0"
     }],
