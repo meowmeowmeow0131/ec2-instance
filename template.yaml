@@ -169,7 +169,7 @@ Resources:
       GroupSet: 
         - !Ref ManagedSecurityGroup
         - !Ref WebSecurityGroup
-      PrivateIpAddress: EC2InstancePrivateIpAddr
+      PrivateIpAddress: !Ref EC2InstancePrivateIpAddr
       SourceDestCheck: true
       SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-public-subnet-a"}
 
