@@ -83,7 +83,75 @@ Parameters:
 
 Resources:
 # ------------------------------------------------------------#
-# IAM Role for EC2
+# EBS for EC2 AZ:A
+# ------------------------------------------------------------#
+  EC2Volume:
+    Type: AWS::EC2::Volume
+    Properties: 
+      AvailabilityZone: !Sub ${AWS::Region}a
+      Encrypted: false
+      Size: !Ref EC2InstanceVolumeSize
+      VolumeType: !Ref EC2InstanceVolumeType
+
+  EC2VolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      VolumeId: !Ref EC2Volume
+      InstanceId: !Ref EC2Instance
+      Device: /dev/xvda
+
+# ------------------------------------------------------------#
+# ENI for EC2 AZ:A Public
+# ------------------------------------------------------------#
+  EC2NetworkInterface:
+    Type: AWS::EC2::NetworkInterface
+    Properties: 
+      GroupSet: 
+        - !Ref ManagedSecurityGroup
+        - !Ref WebSecurityGroup
+      PrivateIpAddress: !Ref EC2InstancePrivateIpAddr
+      SourceDestCheck: true
+      SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-public-subnet-a"}
+
+  EC2NetworkInterfaceAttachment:
+    Type: AWS::EC2::NetworkInterfaceAttachment
+    Properties:
+      NetworkInterfaceId: !Ref EC2NetworkInterface
+      DeviceIndex: 0
+      InstanceId: !Ref EC2Instance
+      DeleteOnTermination: true
+
+# ------------------------------------------------------------#
+# EC2Instance AZ:A #1
+# ------------------------------------------------------------#
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      #DependsOn: EC2VolumeAttachment
+      Tags:
+        - 
+          Key: Name
+          Value: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-01
+      # AMI
+      ImageId: !Ref EC2InstanceAMI
+      # インスタンスタイプ
+      InstanceType: !Ref EC2InstanceInstanceType
+      # インスタンスプロファイル
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      # キーペアの名前
+      KeyName: !Ref EC2InstanceKeyPairName
+      # 終了保護（インスタンスの休止が有効であるかどうか）
+      HibernationOptions: 
+        Configured: false
+      # 詳細モニタリングを有効にするかどうか
+      Monitoring: false
+      # インスタンスのテナンシー
+      Tenancy: default
+      #
+      EbsOptimized: false
+
+# ------------------------------------------------------------#
+# IAM Role
 # ------------------------------------------------------------#
   EC2IAMRole: 
     Type: AWS::IAM::Role
@@ -112,74 +180,6 @@ Resources:
       Path: /
       Roles: 
         - !Ref EC2IAMRole
-
-# ------------------------------------------------------------#
-# EC2Instance AZ:A #1
-# ------------------------------------------------------------#
-  EC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      #DependsOn: ManagedSecurityGroup
-      Tags:
-        - 
-          Key: Name
-          Value: !Sub ${PJPrefix}-${Environment}-${EC2InstanceServiceName}-01
-      # AMI
-      ImageId: !Ref EC2InstanceAMI
-      # インスタンスタイプ
-      InstanceType: !Ref EC2InstanceInstanceType
-      # インスタンスプロファイル
-      IamInstanceProfile: !Ref EC2InstanceProfile
-      # キーペアの名前
-      KeyName: !Ref EC2InstanceKeyPairName
-      # 終了保護（インスタンスの休止が有効であるかどうか）
-      HibernationOptions: 
-        Configured: false
-      # 詳細モニタリングを有効にするかどうか
-      Monitoring: false
-      # インスタンスのテナンシー
-      Tenancy: default
-      #
-      EbsOptimized: false
-
-# ------------------------------------------------------------#
-# EBS AZ:A
-# ------------------------------------------------------------#
-  EC2Volume:
-    Type: AWS::EC2::Volume
-    Properties: 
-      AvailabilityZone: !Sub ${AWS::Region}a
-      Encrypted: false
-      Size: !Ref EC2InstanceVolumeSize
-      VolumeType: !Ref EC2InstanceVolumeType
-
-  EC2VolumeAttachment:
-    Type: AWS::EC2::VolumeAttachment
-    Properties:
-      VolumeId: !Ref EC2Volume
-      InstanceId: !Ref EC2Instance
-      Device: /dev/xvda
-
-# ------------------------------------------------------------#
-# ENI AZ:A Public
-# ------------------------------------------------------------#
-  EC2NetworkInterface:
-    Type: AWS::EC2::NetworkInterface
-    Properties: 
-      GroupSet: 
-        - !Ref ManagedSecurityGroup
-        - !Ref WebSecurityGroup
-      PrivateIpAddress: !Ref EC2InstancePrivateIpAddr
-      SourceDestCheck: true
-      SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-public-subnet-a"}
-
-  EC2NetworkInterfaceAttachment:
-    Type: AWS::EC2::NetworkInterfaceAttachment
-    Properties:
-      NetworkInterfaceId: !Ref EC2NetworkInterface
-      DeviceIndex: 0
-      InstanceId: !Ref EC2Instance
-      DeleteOnTermination: true
 
 # ------------------------------------------------------------#
 #  Managed SecurityGroup
