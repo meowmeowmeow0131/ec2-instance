@@ -87,8 +87,8 @@ Resources:
 # ------------------------------------------------------------#
   EC2Instance:
     Type: AWS::EC2::Instance
+    DependsOn: EC2NetworkInterfaceAttachment
     Properties:
-      DependsOn: EC2NetworkInterfaceAttachment
       Tags:
         - 
           Key: Name
