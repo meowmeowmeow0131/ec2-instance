@@ -180,6 +180,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub ${PJPrefix}-${Environment}-managed-sg
+      GroupDescription: '-'
       VpcId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-vpc"}
       Tags:
         - Key: Name
@@ -217,6 +218,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupName: !Sub ${PJPrefix}-${Environment}-web-sg
+      GroupDescription: '-'
       VpcId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-vpc"}
       Tags:
         - Key: Name
