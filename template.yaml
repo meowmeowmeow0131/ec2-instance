@@ -174,50 +174,64 @@ Resources:
         yum update -y
 
 # ------------------------------------------------------------#
-#  SecurityGroup for Managed
+#  Managed SecurityGroup
 # ------------------------------------------------------------#
   ManagedSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupName: !Sub ${PJPrefix}-${Environment}-managed-sg
+      VpcId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-vpc"}
       Tags:
         - Key: Name
           Value: !Sub ${PJPrefix}-${Environment}-managed-sg
-      VpcId: { "Fn::ImportValue": !Sub "${CompanyPrefix}-vpc" }
-      GroupName: !Sub ${PJPrefix}-${Environment}-managed-sg
-      GroupDescription: "-"
 
-      # Rule
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: !Ref SSHAccessSourceIP
+      # Managed
       SecurityGroupEgress: 
         - IpProtocol: '-1'
           CidrIp: 0.0.0.0/0
 
+  # SSH
+  ManagedSecurityGroupIngressSsh:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ManagedSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      SourceSecurityGroupId: !GetAtt ManagedSecurityGroup.GroupId
+
+  # ICMP
+  ManagedSecurityGroupIngressIcmp:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref ManagedSecurityGroup
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+      SourceSecurityGroupId: !GetAtt ManagedSecurityGroup.GroupId
+
 # ------------------------------------------------------------#
-#  SecurityGroup for Web
+#  Web SecurityGroup
 # ------------------------------------------------------------#
   WebSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupName: !Sub ${PJPrefix}-${Environment}-web-sg
+      VpcId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-vpc"}
       Tags:
         - Key: Name
           Value: !Sub ${PJPrefix}-${Environment}-web-sg
-      VpcId: { "Fn::ImportValue": !Sub "${CompanyPrefix}-vpc" }
-      GroupName: !Sub ${PJPrefix}-${Environment}-web-sg
-      GroupDescription: "-"
 
-  # Rule
-  #WebSecurityGroupIngress: 
-  #  Type: "AWS::EC2::SecurityGroupIngress"
-  #  Properties: 
-  #    IpProtocol: tcp
-  #    FromPort: 80
-  #    ToPort: 80
-  #    SourceSecurityGroupId: !GetAtt [ GroupId ]
-  #    GroupId: !GetAtt [ WebSecurityGroup, GroupId ]
+      # HTTP, HTTPS
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
 
 # ------------------------------------------------------------#
 # コンソール出力情報
