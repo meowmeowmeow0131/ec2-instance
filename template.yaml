@@ -171,7 +171,7 @@ Resources:
         - !Ref WebSecurityGroup
       PrivateIpAddress: EC2InstancePrivateIpAddr
       SourceDestCheck: true
-      SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-private-subnet-a"}
+      SubnetId: {"Fn::ImportValue": !Sub "${CompanyPrefix}-public-subnet-a"}
 
   EC2NetworkInterfaceAttachment:
     Type: AWS::EC2::NetworkInterfaceAttachment
