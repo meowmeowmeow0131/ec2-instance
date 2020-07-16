@@ -1,12 +1,12 @@
 {
-    "StackName": "tutorial-poc-ec2-web-server-template",
+    "StackName": "study-poc-ec2-web-server-template",
     "Parameters": [{
         "ParameterKey": "CompanyPrefix",
         "ParameterValue": "ar"
     },
     {
         "ParameterKey": "PJPrefix",
-        "ParameterValue": "tutorial"
+        "ParameterValue": "study"
     },
     {
         "ParameterKey": "Environment",
